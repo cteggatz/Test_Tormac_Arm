@@ -2,6 +2,8 @@ from pynput import mouse,keyboard
 import threading
 from robot_command.rpl import *
 
+set_units("mm", "deg")
+
 ## when a key is pressed 
 def on_release(key):
     global movementMode, exitProgram
@@ -53,9 +55,6 @@ pos_y = 0
 frame_x_max = 400
 frame_y_max = 400
 
-
-set_units("mm", "deg")
-
 #tormach
 def main():
     print("starting mouse listener")
@@ -66,13 +65,10 @@ def main():
     keyboardListener = keyboard.Listener(on_release= on_release)
     keyboardListener.start()
 
-    #while (not exitProgram):
-        #if movementMode:
-            #movel()
+    while (not exitProgram):
+        if movementMode:
+            print("yippee")
     
     keyboardListener.stop()
     mouseListener.stop()
     quit()
-
-
-    
