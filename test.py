@@ -1,6 +1,18 @@
-from pynput import mouse,keyboard
-import threading
 from robot_command.rpl import *
+#import rospy
+#I should probaby learn rospy....
+#and I should learn python
+
+import threading
+
+try:
+    from pynput import mouse,keyboard
+except:
+
+    import sh
+    with sh.sudo:
+        sh.pip3.install("pynput")
+        from pynput import mouse,keyboard
 
 set_units("mm", "deg")
 
@@ -40,8 +52,18 @@ def on_mouse_click(x,y,button, pressed):
         button
         ))
 
+
+
 #threading lock for concurancy
 lock = threading.Lock()
+mouseListener = mouse.Listener(on_move= on_move, on_click= on_mouse_click)
+keyboardListener = keyboard.Listener(on_release= on_release)
+
+def interupt_handler(value):
+    if value == True:
+        mouseListener.stop()
+        keyboardListener.stop()
+        quit()
 
 #Program State
 movementMode = False
@@ -57,18 +79,20 @@ frame_y_max = 400
 
 #tormach
 def main():
-    print("starting mouse listener")
-    mouseListener = mouse.Listener(on_move= on_move, on_click= on_mouse_click)
+    #start mouse listener
     mouseListener.start()
 
-    print("starting key listener")
-    keyboardListener = keyboard.Listener(on_release= on_release)
+    #start key listener
     keyboardListener.start()
 
-    while (not exitProgram):
+    #registers stop interupt
+    register_interrupt(InterruptSource.Program, 1,  interupt_handler)
+
+
+
+
+    while (True):
+        if(exitProgram):
+            trigger_interrupt(1, True)
         if movementMode:
             print("yippee")
-    
-    keyboardListener.stop()
-    mouseListener.stop()
-    quit()
